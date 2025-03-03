@@ -157,6 +157,7 @@ test_bug_detection() {
    
     # Run bug detection analysis for all test suites in suite_dir 
     run_bug_detection.pl -p $pid -d $suite_dir -o $db_dir || die "run bug detection analysis"
+    echo "PASSED RUN_BUG_DETECTION.PL: db_dir = " "$db_dir"
 
     # Check results for each test suite
     for file in $(get_test_suites $pid $suite_dir); do
