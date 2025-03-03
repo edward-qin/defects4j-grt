@@ -120,16 +120,16 @@ If you do not have `cpanm` installed, use cpan or a cpan wrapper to install the 
 Steps to set up Defects4J
 ----------------
 
-1. Clone Defects4J:
-    - `git clone https://github.com/rjust/defects4j`
+1. Clone this fork of Defects4J:
+    - `git clone git@github.com:edward-qin/defects4j-grt.git`
 
 2. Initialize Defects4J (download the project repositories and external libraries, which are not included in the git repository for size purposes and to avoid redundancies):
-    - `cd defects4j`
+    - `cd defects4j-grt`
     - `cpanm --installdeps .`
     - `./init.sh`
 
 3. Add Defects4J's executables to your PATH:
-    - `export PATH=$PATH:"path2defects4j"/framework/bin`
+    - `export PATH=$PATH:"path2defects4j-grt"/framework/bin`
     ("path2defects4j" points to the directory to which you cloned Defects4J; it
      looks like "/user/yourComputerUserName/desktop/defects4j".)
 
