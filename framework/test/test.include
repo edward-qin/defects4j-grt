@@ -18,7 +18,7 @@ log_file=$(echo $script | sed 's/\.sh$/\.log/')
 LOG=$TEST_DIR/${log_file}
 
 # Set default temporary directory
-TMP_DIR="/tmp/test_d4j_$$_$(date +%s)"
+TMP_DIR="$TEST_DIR/test_d4j_$$_$(date +%s)"
 
 # Set filenames of active and deprecated bugs csvs.
 BUGS_CSV_ACTIVE="active-bugs.csv"
@@ -153,7 +153,7 @@ test_bug_detection() {
 
     local db_dir=$TMP_DIR/result_db
     # Clean result table
-    rm -f $db_dir/bug_detection
+    # rm -f $db_dir/bug_detection
    
     # Run bug detection analysis for all test suites in suite_dir 
     run_bug_detection.pl -p $pid -d $suite_dir -o $db_dir || die "run bug detection analysis"
