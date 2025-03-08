@@ -37,6 +37,9 @@ else
   exit 1
 fi
 
+# Setup java versions
+# TODO how to set this up without sudo perms?
+
 # Setup Defects4j
 echo "START: Setting up defects4j-grt"
 
@@ -76,6 +79,11 @@ echo "SUCCESS: Ran Defect Detection Evaluation"
 
 # Create table with python file
 echo "START: Generating Table IV from results"
+
+python -m venv $D4J_HOME/".venv"
+source $D4J_HOME/".venv/bin/activate"
+pip install pandas
+
 python generate_tab4.py
 echo "SUCCESS: Generated Table IV from results"
 
