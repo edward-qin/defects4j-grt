@@ -25,7 +25,7 @@ BUGS_CSV_ACTIVE="active-bugs.csv"
 BUGS_CSV_DEPRECATED="deprecated-bugs.csv"
 
 # Set filename of directory layout csv.
-LAYOUT_FILE="dir-layout.csv" 
+LAYOUT_FILE="dir-layout.csv"
 
 # By default exit on first error
 HALT_ON_ERROR=1
@@ -58,7 +58,7 @@ log() {
 print_result() {
     printf '=%.s' $(seq 1 80) 1>&2
     if [ $ERROR -eq 0 ]; then
-        text="PASSED"    
+        text="PASSED"
     else
         text="FAILED"
     fi
@@ -121,7 +121,7 @@ get_test_suites() {
     [ $# -eq 2 ] || die "usage: ${FUNCNAME[0]} <pid> <suite_dir>"
     local pid=$1
     local suite_dir=$2
-        
+
     ls $suite_dir/$pid-*.tar.bz2
 }
 
@@ -153,11 +153,10 @@ test_bug_detection() {
 
     local db_dir=$TMP_DIR/result_db
     # Clean result table
-    # rm -f $db_dir/bug_detection
-   
-    # Run bug detection analysis for all test suites in suite_dir 
+    rm -f $db_dir/bug_detection
+
+    # Run bug detection analysis for all test suites in suite_dir
     run_bug_detection.pl -p $pid -d $suite_dir -o $db_dir || die "run bug detection analysis"
-    echo "PASSED RUN_BUG_DETECTION.PL: db_dir = " "$db_dir"
 
     # Check results for each test suite
     for file in $(get_test_suites $pid $suite_dir); do
@@ -180,6 +179,20 @@ test_bug_detection() {
     done
 }
 
+# Run bug detection analysis
+# run_bug_detection <pid> <suite_dir>
+run_bug_detection() {
+    [ $# -eq 3 ] || die "usage: ${FUNCNAME[0]} <pid> <suite_dir> <timeout>"
+    local pid=$1
+    local suite_dir=$2
+    local test_gen_timeout=$3
+    local db_dir=$TMP_DIR/result_db
+
+    # Run bug detection analysis for all test suites in suite_dir
+    run_bug_detection.pl -p $pid -d $suite_dir -o $db_dir -i $test_gen_timeout || die "run bug detection analysis"
+    echo "PASSED RUN_BUG_DETECTION.PL: db_dir = " "$db_dir"
+}
+
 # Run mutation analysis
 # test_mutation <pid> <suite_dir>
 test_mutation() {
@@ -191,14 +204,14 @@ test_mutation() {
     # Clean result table
     rm -f $db_dir/mutation
 
-    # Run mutation analysis for all test suites in suite_dir 
+    # Run mutation analysis for all test suites in suite_dir
     run_mutation.pl -p $pid -d $suite_dir -o $db_dir || die "run mutation analysis"
-    
+
     # Check results for each test suite
     for file in $(get_test_suites $pid $suite_dir); do
         # Extract test suite information (pid, vid, etc.) from archive file name
         set_test_suite_info $file
-        
+
         grep -q "$PID,$VID,$SUITE_SRC,$SUITE_NUM" ${db_dir}/mutation \
                 || die "read mutation results (data row is missing)"
 
@@ -244,7 +257,7 @@ test_coverage() {
     for file in $(get_test_suites $pid $suite_dir); do
         # Extract test suite information (pid, vid, etc.) from archive file name
         set_test_suite_info $file
-        
+
         grep -q "$PID,$VID,$SUITE_SRC,$SUITE_NUM" ${db_dir}/coverage \
                 || die "read coverage results (data row is missing)"
 

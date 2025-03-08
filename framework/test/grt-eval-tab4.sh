@@ -16,7 +16,7 @@
 
 # Dimensions in GRT paper
 PROGRAMS=("Chart" "Math" "Time" "Lang")
-TEST_GENERATORS=("evosuite" "randoop" "randoopGRT")
+TEST_GENERATORS=("evosuite" "randoop" "randoopDynamicTyping" "randoopInputConstruction" "randoopMinCostFirst" "randoopMinCoverageFirst" "randoopGRT")
 TIMES=(120 300 600)
 
 # Import helper subroutines and variables, and init Defects4J
@@ -160,7 +160,7 @@ for generator in ${TEST_GENERATORS[@]}; do
                 fix_test_suite.pl -p "$pid" -d "$suite_dir" || die "fix test suite"
 
                 # Run test suite and determine bug detection
-                test_bug_detection "$pid" "$suite_dir"
+                run_bug_detection "$pid" "$suite_dir" "$time"
 
                 rm -rf "${work_dir:?}/$generator"
             done
