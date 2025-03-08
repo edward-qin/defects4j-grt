@@ -1,5 +1,15 @@
 #!/bin/bash
 
+################################################################################
+#
+# This script runs grt-eval-tab4.sh in parallel on the Cartesian product of
+# CLASSES, GENERATORS, and TIMES defined below.
+#
+# The degree of parallelism is hard-coded as NUM_NODES. Modify this as needed.
+#
+################################################################################
+
+
 # Define parameters
 CLASSES=("Math" "Lang" "Time" "Chart")
 GENERATORS=("evosuite" "randoop" "randoopDynamicTyping" "randoopInputConstruction" "randoopMinCostFirst" "randoopMinCoverageFirst" "randoopGRT")
