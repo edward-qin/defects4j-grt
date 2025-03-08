@@ -31,7 +31,7 @@ if not required_columns.issubset(full_df.columns):
     raise ValueError(f"CSV files are missing required columns: {required_columns - set(full_df.columns)}")
 
 # Filter for only "Pass" values in test_classification
-filtered_df = full_df[full_df["test_classification"] == "Pass"]
+filtered_df = full_df[full_df["test_classification"] == "Fail"]
 
 # Aggregate counts of "Pass" values
 agg_df = (
