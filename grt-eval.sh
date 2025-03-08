@@ -5,6 +5,11 @@
 # This script runs Defects4j computation in parallel. It handles setup (excluding
 # Defects4j-specific setup, which you should do from the README.md of this repo).
 # The command should be run from the root directory of `defects4j-grt`.
+# 
+# Use ./grt-eval.sh --ignore-warning to bypass the user check
+# This can be useful when making this a background process.
+# 
+# If there are java versions or perl libraries missing, see grt-eval-setup.sh
 #
 ################################################################################
 
@@ -28,10 +33,20 @@ confirm_proceed() {
     done
 }
 
+# Functions to switch jdk version
+usejdk8() {
+    export JAVA_HOME=~/java/jdk8u292-b10
+    export PATH=$JAVA_HOME/bin:$PATH
+}
+usejdk11() {
+    export JAVA_HOME=~/java/jdk-11.0.9.1+1
+    export PATH=$JAVA_HOME/bin:$PATH
+}
+
 # Warn about files removed
-echo "Warning: This script will REMOVE all defects4j-grt/framework/test/test_d4j_* directories!"
+echo "Warning: This script will REMOVE all defects4j-grt/framework/test/[test_d4j_*|*.log] directories and files!"
 echo "Are you sure you want to proceed? (y/n)"
-if confirm_proceed; then
+if [[ "$1" == "--ignore-warning" ]] || confirm_proceed; then
   echo "Running script..."
 else
   exit 1
@@ -52,6 +67,7 @@ export D4J_HOME=$WORK_DIR/"defects4j-grt"
 export PATH=$PATH:$D4J_HOME/"framework/bin"
 export randoop=$WORK_DIR/"randoop-grt"
 
+usejdk11
 defects4j info -p Lang
 echo "SUCCESS: Set up defects4j-grt"
 
@@ -65,14 +81,15 @@ rm -rf build/libs/
 
 # Link randoop-current.jar
 cd $D4J_HOME/"framework/lib/test_generation/generation"
-ln -s $randoop/"build/libs/randoop-all-4.3.3.jar" "randoop-current.jar"
+ln -sf $randoop/"build/libs/randoop-all-4.3.3.jar" "randoop-current.jar"
 echo "SUCCESS: Set up randoop-grt"
 
 # Run grt generation in parallel
 echo "START: Running Defect Detection Evaluation"
 
 cd $D4J_HOME/"framework/test"
-rm -rf "test_d4j_*"
+rm -rf test_d4j_*
+rm *.log
 
 ./grt-eval-tab4-parallel.sh
 echo "SUCCESS: Ran Defect Detection Evaluation"
