@@ -5,7 +5,7 @@
 # This script runs grt-eval-tab4.sh in parallel on the Cartesian product of
 # CLASSES, GENERATORS, and TIMES defined below.
 #
-# The degree of parallelism is hard-coded as NUM_NODES. Modify this as needed.
+# The degree of parallelism is hard-coded as NUM_CORES. Modify this as needed.
 #
 ################################################################################
 
@@ -15,8 +15,8 @@ CLASSES=("Math" "Lang" "Time" "Chart")
 GENERATORS=("evosuite" "randoop" "randoopDynamicTyping" "randoopInputConstruction" "randoopMinCostFirst" "randoopMinCoverageFirst" "randoopGRT")
 TIMES=(120 300 600)
 
-# Number of cluster nodes
-NUM_NODES=48
+# Number of compute cores
+NUM_CORES=48
 
 # Create a list of tasks
 TASKS=()
@@ -40,4 +40,4 @@ run_task() {
 export -f run_task
 
 # Run tasks in parallel across nodes
-printf "%s\n" "${TASKS[@]}" | parallel -j $NUM_NODES --colsep ' ' run_task
+printf "%s\n" "${TASKS[@]}" | parallel -j $NUM_CORES --colsep ' ' run_task
