@@ -4,7 +4,12 @@ framework/lib/build_systems
 framework/lib/test_generation/*
 !framework/lib/test_generation/bin
 framework/test/*.log
+framework/test/evosuite-report/
+framework/test/log/
+framework/test/test_d4j_*/
 project_repos/*
 !project_repos/get_repos.sh
 major/
 work/
+.venv/
+nohup.out
