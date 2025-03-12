@@ -16,7 +16,7 @@
 
 # Dimensions in GRT paper
 PROGRAMS=("Chart" "Math" "Time" "Lang")
-TEST_GENERATORS=("evosuite" "randoop" "randoopDynamicTyping" "randoopInputConstruction" "randoopMinCostFirst" "randoopMinCoverageFirst" "randoopGRT")
+GENERATORS=("evosuite" "randoop" "randoopGRTMinusDynamicTyping" "randoopGRTMinusInputConstruction" "randoopGRTMinusMinCostFirst" "randoopGRTMinusMinCoverageFirst" "randoopGRT")
 TIMES=(120 300 600)
 
 # Import helper subroutines and variables, and init Defects4J
@@ -35,7 +35,7 @@ usage() {
         fi
     done
     echo "Test generators:"
-    for generator in ${TEST_GENERATORS[@]}; do
+    for generator in ${GENERATORS[@]}; do
         echo "  * $generator"
     done
     echo "Timeouts:"
@@ -46,13 +46,13 @@ usage() {
 }
 
 usejdk8() {
-  export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
+  export JAVA_HOME=~/java/jdk8u292-b10
   export PATH=$JAVA_HOME/bin:$PATH
   echo "Switched to JDK 8: $JAVA_HOME"
 }
 
 usejdk11() {
-  export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+  export JAVA_HOME=~/java/jdk-11.0.9.1+1
   export PATH=$JAVA_HOME/bin:$PATH
   echo "Switched to JDK 11: $JAVA_HOME"
 }
@@ -92,10 +92,10 @@ elif [[ -n "$PID" ]]; then
     PROGRAMS=("$PID")
 fi
 
-if [[ -n "$GENERATOR" && ! " ${TEST_GENERATORS[@]} " =~ " $GENERATOR " ]]; then
+if [[ -n "$GENERATOR" && ! " ${GENERATORS[@]} " =~ " $GENERATOR " ]]; then
     usage
 elif [[ -n "$GENERATOR" ]]; then
-    TEST_GENERATORS=("$GENERATOR")
+    GENERATORS=("$GENERATOR")
 fi
 
 if [[ -n "$TIMEOUT" && ! " ${TIMES[@]} " =~ " $TIMEOUT " ]]; then
@@ -105,15 +105,13 @@ elif [[ -n "$TIMEOUT" ]]; then
 fi
 
 echo "Using programs: ${PROGRAMS[@]}"
-echo "Using generators: ${TEST_GENERATORS[@]}"
+echo "Using generators: ${GENERATORS[@]}"
 echo "Using times: ${TIMES[@]}"
 
-init
 usejdk11
 
-# Create log file
 script_name_without_sh=${script//.sh/}
-LOG="$TEST_DIR/${script_name_without_sh}$(printf '_%s_%s' "$PID" $$).log"
+mkdir -p "$TEST_DIR/log"
 
 ################################################################################
 # Run all specified generators on the specified programs with specified timeout
@@ -129,7 +127,7 @@ mkdir -p "$work_dir"
 rm -rf "${work_dir:?}/*"
 
 # Iterate over each generator, each project, each bug, each timeout
-for generator in ${TEST_GENERATORS[@]}; do
+for generator in ${GENERATORS[@]}; do
     for pid in ${PROGRAMS[@]}; do
         BUGS="$(get_bug_ids "$BASE_DIR/framework/projects/$pid/$BUGS_CSV_ACTIVE")"
         for bid in $BUGS ; do
@@ -139,6 +137,8 @@ for generator in ${TEST_GENERATORS[@]}; do
                 continue
             fi
             for time in ${TIMES[@]}; do
+                LOG="$TEST_DIR/log/${script_name_without_sh}$(printf '_%s_%s_%s_%s' "$PID" "$GENERATOR" "$TIMEOUT" $$).log"
+
                 # Use the modified classes as target classes for efficiency
                 target_classes="$BASE_DIR/framework/projects/$pid/modified_classes/$bid.src"
 
@@ -173,9 +173,7 @@ HALT_ON_ERROR=1
 # Print a summary of what went wrong
 if [ $ERROR != 0 ]; then
     printf '=%.s' $(seq 1 80) 1>&2
-    echo 1>&2
-    echo "The following errors occurred:" 1>&2
-    cat "$LOG" 1>&2
+    echo "Please check the `TEST_DIR/log/grt-eval-tab4_<Program>_<Generator>_<Timeout>_PID.log` files"
 fi
 
 # Indicate whether an error occurred
