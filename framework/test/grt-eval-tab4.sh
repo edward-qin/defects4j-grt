@@ -173,7 +173,7 @@ HALT_ON_ERROR=1
 # Print a summary of what went wrong
 if [ $ERROR != 0 ]; then
     printf '=%.s' $(seq 1 80) 1>&2
-    echo "Please check the `TEST_DIR/log/grt-eval-tab4_<Program>_<Generator>_<Timeout>_PID.log` files"
+    echo "Please check the $TEST_DIR/log/grt-eval-tab4_<Program>_<Generator>_<Timeout>_PID.log files"
 fi
 
 # Indicate whether an error occurred

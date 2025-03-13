@@ -74,7 +74,9 @@ echo "SUCCESS: Set up defects4j-grt"
 # Setup randoop-grt
 echo "START: Setting up randoop-grt"
 
-git clone git@github.com:edward-qin/randoop-grt.git
+if [ ! -d "randoop-grt" ]; then
+    git clone git@github.com:edward-qin/randoop-grt.git randoop-grt
+fi
 cd $randoop
 rm -rf build/libs/
 ./gradlew assemble
@@ -89,6 +91,8 @@ echo "START: Running Defect Detection Evaluation"
 
 cd $D4J_HOME/"framework/test"
 rm -rf test_d4j_*
+mkdir -p "log"
+rm log/*.log
 rm *.log
 
 ./grt-eval-tab4-parallel.sh
