@@ -30,7 +30,7 @@ for class in "${CLASSES[@]}"; do
 
     for generator in "${GENERATORS[@]}"; do
         for time in "${TIMES[@]}"; do
-            for bug in "${BUGS[@]}"; do
+            for bug in $BUGS; do
                 TASKS+=("$class $generator $time $bug")
             done
         done
