@@ -109,7 +109,7 @@ for bid in $BUGS ; do
 
     # Iterate over all supported generators and generate regression tests
 #    for tool in $("$BASE_DIR"/framework/bin/gen_tests.pl -g help | grep - | tr -d '-'); do
-    grt_tools=("evosuite" "randoop" "randoopGRT")
+    grt_tools=("randoop")
     for tool in ${grt_tools[@]}; do
         # Directory for generated test suites
         # suite_src="$tool"
