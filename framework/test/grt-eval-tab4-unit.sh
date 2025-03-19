@@ -16,7 +16,7 @@
 # Dimensions in GRT paper
 PROGRAMS=("Chart" "Math" "Time" "Lang")
 GENERATORS=("evosuite" "randoop" "randoopGRTMinusDynamicTyping" "randoopGRTMinusInputConstruction" "randoopGRTMinusMinCostFirst" "randoopGRTMinusMinCoverageFirst" "randoopGRT")
-TIMES=(120 300 600)
+TIMES=(10 120 300 600)
 
 # Import helper subroutines and variables, and init Defects4J
 HERE="$(cd "$(dirname "$0")" && pwd)" || { echo "cannot cd to $(dirname "$0")"; exit 2; }

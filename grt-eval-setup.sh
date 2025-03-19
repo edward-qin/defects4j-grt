@@ -30,5 +30,5 @@ export PERL5LIB=~/perl5/lib/perl5:$PERL5LIB
 export PATH=~/perl5/bin:$PATH
 
 # Run the main script
-./grt-eval.sh
+# ./grt-eval.sh
 # nohup ./grt-eval.sh --ignore-warning &
