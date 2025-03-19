@@ -14,3 +14,4 @@ work/
 .venv/
 nohup.out
 framework/test/jacoco.exec
+framework/test/test_d4j_query.sh
