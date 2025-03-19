@@ -96,11 +96,11 @@ EXTRA_JAVA_AGENT_ARG="-javaagent:$D4J_DIR_TESTGEN_LIB/jacocoagent.jar"
 RUN_TIME_CAST_ARG="--cast_to_run_time_type=true"
 fi
 
-if [[ $me != *"GRTMinusInputConstruction"* && ($me == *"InputConstruction"* || $me == *"GRT"*) ]]; then
-BOOT_CLASS_PATH_ARG="$BOOT_CLASS_PATH_ARG:$D4J_DIR_TESTGEN_LIB/jacocoagent.jar"
-EXTRA_JAVA_AGENT_ARG="-javaagent:$D4J_DIR_TESTGEN_LIB/jacocoagent.jar"
-INPUT_CONSTRUCTION_ARG="--demand_driven=true"
-fi
+# if [[ $me != *"GRTMinusInputConstruction"* && ($me == *"InputConstruction"* || $me == *"GRT"*) ]]; then
+# BOOT_CLASS_PATH_ARG="$BOOT_CLASS_PATH_ARG:$D4J_DIR_TESTGEN_LIB/jacocoagent.jar"
+# EXTRA_JAVA_AGENT_ARG="-javaagent:$D4J_DIR_TESTGEN_LIB/jacocoagent.jar"
+# INPUT_CONSTRUCTION_ARG="--demand_driven=true"
+# fi
 
 # InputFuzzing and ConstantMining are not supported at the moment
 #if [[ $me == *"InputFuzzing"* ]]; then

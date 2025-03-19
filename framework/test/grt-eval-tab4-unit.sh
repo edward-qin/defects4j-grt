@@ -15,7 +15,7 @@
 
 # Dimensions in GRT paper
 PROGRAMS=("Chart" "Math" "Time" "Lang")
-GENERATORS=("evosuite" "randoop" "randoopGRTMinusDynamicTyping" "randoopGRTMinusInputConstruction" "randoopGRTMinusMinCostFirst" "randoopGRTMinusMinCoverageFirst" "randoopGRT")
+GENERATORS=("evosuite" "randoop" "randoopGRTMinusDynamicTyping" "randoopGRTMinusMinCostFirst" "randoopGRTMinusMinCoverageFirst" "randoopGRT")
 TIMES=(120 300 600)
 
 # Import helper subroutines and variables, and init Defects4J

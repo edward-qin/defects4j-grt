@@ -13,3 +13,4 @@ major/
 work/
 .venv/
 nohup.out
+framework/test/jacoco.exec
