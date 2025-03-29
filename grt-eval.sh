@@ -4,56 +4,69 @@
 #
 # This script runs Defects4j computation in parallel. It handles setup (excluding
 # Defects4j-specific setup, which you should do from the README.md of this repo).
+# The computation involves:
+#  * Setting up defects4j-grt
+#  * Running D4J computations in parallel with ./grt-eval-tab4-parallel.sh
+#  * Generating Table 4 in defects4j-grt/framework/test/grt_table4.csv
 # The command should be run from the root directory of `defects4j-grt`.
-# 
+#
+# Creates and uses the following directory structure:
+# ~ (your home directory)
+# |- defects4j-grt
+#   |- framework
+#     |- test
+#        |- .venv/
+#        |- test_d4j_<pid>_<timestamp>/result_db/bug_detection
+#        |- grt_table4.csv
+# |- randoop-grt
+#
 # Use ./grt-eval.sh --ignore-warning to bypass the user check
 # This can be useful when making this a background process.
-# 
-# If there are java versions or perl libraries missing, see grt-eval-setup.sh
+#
+# Example:
+#  * ./grt-eval.sh
+#       Run normally from shell
+#  * nohup ./grt-eval.sh --ignore-warning & disown
+#       Run the script in parallel, detached from shell process
+#
+# If there are java versions or perl libraries missing, see grt-eval-setup.sh.
 #
 ################################################################################
+
+HERE="$(cd "$(dirname "$0")" && pwd)" || {
+    echo "cannot cd to $(dirname "$0")"
+    exit 2
+}
+source "$HERE/framework/test/grt-eval-tab4-common.sh"
 
 # Function to prompt the user for confirmation
 confirm_proceed() {
     while true; do
         read -p "Type 'y' to continue: " response
         case $response in
-            [Yy]* )
-                echo "Proceeding with the action."
-                return 0  # Success, proceed with the action
-                ;;
-            [Nn]* )
-                echo "Action aborted."
-                return 1  # Exit or abort, action canceled
-                ;;
-            * )
-                echo "Invalid input. Please type 'y' to proceed or 'n' to cancel."
-                ;;
+        [Yy]*)
+            echo "Proceeding with the action."
+            return 0 # Success, proceed with the action
+            ;;
+        [Nn]*)
+            echo "Action aborted."
+            return 1 # Exit or abort, action canceled
+            ;;
+        *)
+            echo "Invalid input. Please type 'y' to proceed or 'n' to cancel."
+            ;;
         esac
     done
-}
-
-# Functions to switch jdk version
-usejdk8() {
-    export JAVA_HOME=~/java/jdk8u292-b10
-    export PATH=$JAVA_HOME/bin:$PATH
-}
-usejdk11() {
-    export JAVA_HOME=~/java/jdk-11.0.9.1+1
-    export PATH=$JAVA_HOME/bin:$PATH
 }
 
 # Warn about files removed
 echo "Warning: This script will REMOVE all defects4j-grt/framework/test/[test_d4j_*|*.log] directories and files!"
 echo "Are you sure you want to proceed? (y/n)"
 if [[ "$1" == "--ignore-warning" ]] || confirm_proceed; then
-  echo "Running script..."
+    echo "Running script..."
 else
-  exit 1
+    exit 1
 fi
-
-# Setup java versions
-# TODO how to set this up without sudo perms?
 
 # Setup Defects4j
 echo "START: Setting up defects4j-grt"

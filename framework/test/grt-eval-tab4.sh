@@ -3,8 +3,14 @@
 #
 # This script runs Defects4J defect detection on Randoop, GRT, and EvoSuite to
 # replicate Table IV: Defect Detection in Defects4J Benchmarks in the original
-# GRT Paper
-# The output is a CSV file containing PASS/FAIL/BROKEN statuses of bugs
+# GRT Paper.
+#
+# The key difference with grt-eval-tab4-unit.sh is that this file does not have
+# bug-level granularity. It runs ALL bugs for a given program, generator, and
+# timeout.
+#
+# The output is a CSV file containing PASS/FAIL/BROKEN statuses of bugs,
+# located at `test_d4j_<PID>_<TIMESTAMP>/result_db/bug_detection`
 #
 # Example:
 #   * Generate for all programs, generators, times:       ./grt-eval-tab4.sh
@@ -14,19 +20,19 @@
 #
 ################################################################################
 
-# Dimensions in GRT paper
-PROGRAMS=("Chart" "Math" "Time" "Lang")
-GENERATORS=("evosuite" "randoop" "randoopGRTMinusDynamicTyping" "randoopGRTMinusInputConstruction" "randoopGRTMinusMinCostFirst" "randoopGRTMinusMinCoverageFirst" "randoopGRT")
-TIMES=(120 300 600)
-
 # Import helper subroutines and variables, and init Defects4J
-HERE="$(cd "$(dirname "$0")" && pwd)" || { echo "cannot cd to $(dirname "$0")"; exit 2; }
+HERE="$(cd "$(dirname "$0")" && pwd)" || {
+    echo "cannot cd to $(dirname "$0")"
+    exit 2
+}
 source "$HERE/test.include" || exit 1
+source "$HERE/grt-eval-tab4-common.sh"
 init
 
 # Print usage message and exit
 usage() {
-    local known_pids; known_pids=$(defects4j pids)
+    local known_pids
+    known_pids=$(defects4j pids)
     echo "usage: $0 [-p <project id>] [-g <generator>] [-t <timeout in sec>]"
     echo "Project ids:"
     for pid in $known_pids; do
@@ -45,41 +51,32 @@ usage() {
     exit 1
 }
 
-usejdk8() {
-  export JAVA_HOME=~/java/jdk8u292-b10
-  export PATH=$JAVA_HOME/bin:$PATH
-  echo "Switched to JDK 8: $JAVA_HOME"
-}
-
-usejdk11() {
-  export JAVA_HOME=~/java/jdk-11.0.9.1+1
-  export PATH=$JAVA_HOME/bin:$PATH
-  echo "Switched to JDK 11: $JAVA_HOME"
-}
-
 # Check arguments
 while getopts ":p:g:t:" opt; do
     case $opt in
-        p) PID="$OPTARG"
-            ;;
-        g) GENERATOR="$OPTARG"
-            ;;
-        t) if [[ "$OPTARG" =~ ^[0-9]+$ ]]; then
-                TIMEOUT=$((OPTARG))  # Convert to integer
-           else
-                echo "Invalid timeout value: $OPTARG. Must be a positive integer." >&2
-                usage
-           fi
-            ;;
-        \?)
-            echo "Unknown option: -$OPTARG" >&2
+    p)
+        PID="$OPTARG"
+        ;;
+    g)
+        GENERATOR="$OPTARG"
+        ;;
+    t)
+        if [[ "$OPTARG" =~ ^[0-9]+$ ]]; then
+            TIMEOUT=$((OPTARG)) # Convert to integer
+        else
+            echo "Invalid timeout value: $OPTARG. Must be a positive integer." >&2
             usage
-            ;;
-        :)
-            echo "No argument provided: -$OPTARG." >&2
-            usage
-            ;;
-  esac
+        fi
+        ;;
+    \?)
+        echo "Unknown option: -$OPTARG" >&2
+        usage
+        ;;
+    :)
+        echo "No argument provided: -$OPTARG." >&2
+        usage
+        ;;
+    esac
 done
 
 if [[ -n "$PID" && ! -e "$BASE_DIR/framework/core/Project/$PID.pm" ]]; then
@@ -130,7 +127,7 @@ rm -rf "${work_dir:?}/*"
 for generator in ${GENERATORS[@]}; do
     for pid in ${PROGRAMS[@]}; do
         BUGS="$(get_bug_ids "$BASE_DIR/framework/projects/$pid/$BUGS_CSV_ACTIVE")"
-        for bid in $BUGS ; do
+        for bid in $BUGS; do
             # Skip all bug ids that do not exist in the active-bugs csv
             if ! grep -q "^$bid," "$BASE_DIR/framework/projects/$pid/$BUGS_CSV_ACTIVE"; then
                 warn "Skipping bug ID that is not listed in active-bugs csv: $pid-$bid"
@@ -151,8 +148,7 @@ for generator in ${GENERATORS[@]}; do
 
                 # Run generator and the fix script on the generated test suite
                 echo "Running test generation on $generator for program $pid-$vid and timeout $time seconds"
-                if ! gen_tests.pl -g "$generator" -p "$pid" -v "$vid" -n 1 -o "$TMP_DIR" -b "$time" -c "$target_classes";
-                then
+                if ! gen_tests.pl -g "$generator" -p "$pid" -v "$vid" -n 1 -o "$TMP_DIR" -b "$time" -c "$target_classes"; then
                     die "run $generator (regression) on $pid-$vid with timeout $time"
                     # Skip any remaining analyses (cannot be run), even if halt-on-error is false
                     continue

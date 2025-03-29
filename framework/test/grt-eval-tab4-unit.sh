@@ -3,43 +3,36 @@
 #
 # This script runs Defects4J defect detection on Randoop, GRT, and EvoSuite to
 # replicate Table IV: Defect Detection in Defects4J Benchmarks in the original
-# GRT Paper
-# The output is a CSV file containing PASS/FAIL/BROKEN statuses of bugs
+# GRT Paper.
+#
+# The key difference with grt-eval-tab4.sh is that this file accepts an
+# additional -b argument for the bug ID.
+#
+# The output is a CSV file containing PASS/FAIL/BROKEN statuses of bugs,
+# located at `test_d4j_<PID>_<TIMESTAMP>/result_db/bug_detection`
 #
 # Example:
-#   * Generate for JFreeChart, EvoSuite, 120 seconds, Bug 1  
+#   * Generate for JFreeChart, EvoSuite, 120 seconds, Bug 1
 #     ./grt-eval-tab4.sh -pChart -gEvoSuite -t120 -b1
-#   * Obtain bug ids with 
+#   * Obtain bug ids with
 #     get_bug_ids "$BASE_DIR/framework/projects/$pid/$BUGS_CSV_ACTIVE"
 ################################################################################
 
-# Dimensions in GRT paper
-PROGRAMS=("Chart" "Math" "Time" "Lang")
-GENERATORS=("evosuite" "randoop" "randoopGRTMinusDynamicTyping" "randoopGRTMinusInputConstruction" "randoopGRTMinusMinCostFirst" "randoopGRTMinusMinCoverageFirst" "randoopGRT")
-TIMES=(10 120 300 600)
-
 # Import helper subroutines and variables, and init Defects4J
-HERE="$(cd "$(dirname "$0")" && pwd)" || { echo "cannot cd to $(dirname "$0")"; exit 2; }
+HERE="$(cd "$(dirname "$0")" && pwd)" || {
+    echo "cannot cd to $(dirname "$0")"
+    exit 2
+}
 source "$HERE/test.include" || exit 1
+source "$HERE/grt-eval-tab4-common.sh"
 init
-
-usejdk8() {
-  export JAVA_HOME=~/java/jdk8u292-b10
-  export PATH=$JAVA_HOME/bin:$PATH
-  echo "Switched to JDK 8: $JAVA_HOME"
-}
-
-usejdk11() {
-  export JAVA_HOME=~/java/jdk-11.0.9.1+1
-  export PATH=$JAVA_HOME/bin:$PATH
-  echo "Switched to JDK 11: $JAVA_HOME"
-}
 
 usejdk11
 
 # Print usage message and exit
 usage() {
-    local known_pids; known_pids=$(defects4j pids)
+    local known_pids
+    known_pids=$(defects4j pids)
     echo "usage: $0 [-p <project id>] [-g <generator>] [-t <timeout in sec>]"
     echo "Project ids:"
     for pid in ${PROGRAMS[@]}; do
@@ -66,28 +59,32 @@ usage() {
 # Check arguments
 while getopts ":p:g:t:b:" opt; do
     case $opt in
-        p) PID="$OPTARG"
-            ;;
-        g) GENERATOR="$OPTARG"
-            ;;
-        t) if [[ "$OPTARG" =~ ^[0-9]+$ ]]; then
-                TIMEOUT=$((OPTARG))  # Convert to integer
-           else
-                echo "Invalid timeout value: $OPTARG. Must be a positive integer." >&2
-                usage
-           fi
-            ;;
-        b) BID="$OPTARG"
-            ;;
-        \?)
-            echo "Unknown option: -$OPTARG" >&2
+    p)
+        PID="$OPTARG"
+        ;;
+    g)
+        GENERATOR="$OPTARG"
+        ;;
+    t)
+        if [[ "$OPTARG" =~ ^[0-9]+$ ]]; then
+            TIMEOUT=$((OPTARG)) # Convert to integer
+        else
+            echo "Invalid timeout value: $OPTARG. Must be a positive integer." >&2
             usage
-            ;;
-        :)
-            echo "No argument provided: -$OPTARG." >&2
-            usage
-            ;;
-  esac
+        fi
+        ;;
+    b)
+        BID="$OPTARG"
+        ;;
+    \?)
+        echo "Unknown option: -$OPTARG" >&2
+        usage
+        ;;
+    :)
+        echo "No argument provided: -$OPTARG." >&2
+        usage
+        ;;
+    esac
 done
 
 if [[ ! -e "$BASE_DIR/framework/core/Project/$PID.pm" ]]; then
@@ -154,7 +151,7 @@ if ! gen_tests.pl -g "$GENERATOR" -p "$PID" -v "$vid" -n 1 -o "$TMP_DIR" -b "$TI
     die "run $GENERATOR (regression) on $PID-$vid with timeout $TIMEOUT"
     # Skip any remaining analyses (cannot be run), even if halt-on-error is false
     continue
-fi 
+fi
 fix_test_suite.pl -p "$PID" -d "$suite_dir" || die "fix test suite"
 
 # Run test suite and determine bug detection

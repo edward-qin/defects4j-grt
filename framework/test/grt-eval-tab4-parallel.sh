@@ -3,24 +3,28 @@
 ################################################################################
 #
 # This script runs grt-eval-tab4.sh in parallel on the Cartesian product of
-# CLASSES, GENERATORS, and TIMES defined below.
+# CLASSES, GENERATORS, and TIMES defined in grt-eval-tab4-common.sh
 #
-# The degree of parallelism is hard-coded as NUM_CORES. Modify this as needed.
+# The degree of parallelism is hard-coded as NUM_THREADS. Modify this as needed.
 #
 ################################################################################
 
+# Max number of threads
+NUM_THREADS=$(($(nproc) - 4))
+echo "Running on at most $NUM_THREADS concurrent processes"
 
-# Define parameters
-CLASSES=("Math" "Lang" "Time" "Chart")
-GENERATORS=("evosuite" "randoop" "randoopGRTMinusDynamicTyping" "randoopGRTMinusMinCostFirst" "randoopGRTMinusMinCoverageFirst" "randoopGRT")
-TIMES=(120 300 600)
-
-# Number of compute cores
-# NUM_CORES=$(($(nproc) / 2))
-NUM_CORES=$(( $(nproc) - 4 ))
-echo "Running on at most $NUM_CORES concurrent processes"
-HERE="$(cd "$(dirname "$0")" && pwd)" || { echo "cannot cd to $(dirname "$0")"; exit 2; }
+HERE="$(cd "$(dirname "$0")" && pwd)" || {
+    echo "cannot cd to $(dirname "$0")"
+    exit 2
+}
 source "$HERE/test.include" || exit 1
+echo "Sourced test.include"
+
+source "$HERE/grt-eval-tab4-common.sh" || exit 1
+echo "Running grt-eval-tab4 in parallel on configurations:"
+for var in CLASSES GENERATORS TIMES; do
+    echo "$var = ${!var[@]}"
+done
 
 # Create a list of tasks
 TASKS=()
@@ -50,4 +54,4 @@ run_task() {
 export -f run_task
 
 # Run tasks in parallel across nodes
-printf "%s\n" "${TASKS[@]}" | parallel -j $NUM_CORES --colsep ' ' run_task
+printf "%s\n" "${TASKS[@]}" | parallel -j $NUM_THREADS --colsep ' ' run_task
