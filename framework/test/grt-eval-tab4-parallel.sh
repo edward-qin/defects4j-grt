@@ -23,14 +23,15 @@ echo "Sourced test.include"
 source "$HERE/grt-eval-tab4-common.sh" || exit 1
 echo "Running grt-eval-tab4 in parallel on configurations:"
 for var in CLASSES GENERATORS TIMES; do
-    echo "$var = ${!var[@]}"
+    echo -n "$var = "
+    eval "echo \${$var[@]}"
 done
 
 # Create a list of tasks
 TASKS=()
 for class in "${CLASSES[@]}"; do
     BUGS="$(get_bug_ids "$BASE_DIR/framework/projects/$class/$BUGS_CSV_ACTIVE")"
-    echo "BUGS: ${BUGS[@]}"
+    echo "$class BUGS: ${BUGS[@]}"
 
     for generator in "${GENERATORS[@]}"; do
         for time in "${TIMES[@]}"; do

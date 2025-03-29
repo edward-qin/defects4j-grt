@@ -13,7 +13,7 @@
 #
 # Example:
 #   * Generate for JFreeChart, EvoSuite, 120 seconds, Bug 1
-#     ./grt-eval-tab4.sh -pChart -gEvoSuite -t120 -b1
+#     ./grt-eval-tab4.sh -pChart -gevosuite -t120 -b1
 #   * Obtain bug ids with
 #     get_bug_ids "$BASE_DIR/framework/projects/$pid/$BUGS_CSV_ACTIVE"
 ################################################################################
@@ -35,7 +35,7 @@ usage() {
     known_pids=$(defects4j pids)
     echo "usage: $0 [-p <project id>] [-g <generator>] [-t <timeout in sec>]"
     echo "Project ids:"
-    for pid in ${PROGRAMS[@]}; do
+    for pid in ${CLASSES[@]}; do
         echo "  * $pid"
     done
     if [[ -n "$PID" && "$BASE_DIR/framework/projects/$PID/$BUGS_CSV_ACTIVE" ]]; then
@@ -95,7 +95,7 @@ if [[ -n "$PID" && ! -e "$BASE_DIR/framework/core/Project/$PID.pm" ]]; then
     usage
 fi
 
-if [[ -z "$PID" || ! " ${PROGRAMS[@]} " =~ " $PID " ]]; then
+if [[ -z "$PID" || ! " ${CLASSES[@]} " =~ " $PID " ]]; then
     usage
 fi
 

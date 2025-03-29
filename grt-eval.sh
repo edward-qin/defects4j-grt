@@ -13,9 +13,9 @@
 # Creates and uses the following directory structure:
 # ~ (your home directory)
 # |- defects4j-grt
+#   |- .venv/
 #   |- framework
 #     |- test
-#        |- .venv/
 #        |- test_d4j_<pid>_<timestamp>/result_db/bug_detection
 #        |- grt_table4.csv
 # |- randoop-grt

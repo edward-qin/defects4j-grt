@@ -28,12 +28,14 @@ TIMES=(120 300 600)
 # If you have a different java version, modify these functions correspondingly
 usejdk8() {
   export JAVA_HOME=~/java/jdk8u292-b10
+  # export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
   export PATH=$JAVA_HOME/bin:$PATH
   echo "Switched to JDK 8: $JAVA_HOME"
 }
 
 usejdk11() {
   export JAVA_HOME=~/java/jdk-11.0.9.1+1
+  # export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
   export PATH=$JAVA_HOME/bin:$PATH
   echo "Switched to JDK 11: $JAVA_HOME"
 }

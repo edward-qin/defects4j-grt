@@ -36,7 +36,7 @@ usage() {
     echo "usage: $0 [-p <project id>] [-g <generator>] [-t <timeout in sec>]"
     echo "Project ids:"
     for pid in $known_pids; do
-        if [[ " ${PROGRAMS[@]} " =~ " $pid " ]]; then
+        if [[ " ${CLASSES[@]} " =~ " $pid " ]]; then
             echo "  * $pid"
         fi
     done
@@ -83,10 +83,10 @@ if [[ -n "$PID" && ! -e "$BASE_DIR/framework/core/Project/$PID.pm" ]]; then
     usage
 fi
 
-if [[ -n "$PID" && ! " ${PROGRAMS[@]} " =~ " $PID " ]]; then
+if [[ -n "$PID" && ! " ${CLASSES[@]} " =~ " $PID " ]]; then
     usage
 elif [[ -n "$PID" ]]; then
-    PROGRAMS=("$PID")
+    CLASSES=("$PID")
 fi
 
 if [[ -n "$GENERATOR" && ! " ${GENERATORS[@]} " =~ " $GENERATOR " ]]; then
@@ -101,7 +101,7 @@ elif [[ -n "$TIMEOUT" ]]; then
     TIMES=($TIMEOUT)
 fi
 
-echo "Using programs: ${PROGRAMS[@]}"
+echo "Using programs: ${CLASSES[@]}"
 echo "Using generators: ${GENERATORS[@]}"
 echo "Using times: ${TIMES[@]}"
 
@@ -125,7 +125,7 @@ rm -rf "${work_dir:?}/*"
 
 # Iterate over each generator, each project, each bug, each timeout
 for generator in ${GENERATORS[@]}; do
-    for pid in ${PROGRAMS[@]}; do
+    for pid in ${CLASSES[@]}; do
         BUGS="$(get_bug_ids "$BASE_DIR/framework/projects/$pid/$BUGS_CSV_ACTIVE")"
         for bid in $BUGS; do
             # Skip all bug ids that do not exist in the active-bugs csv
