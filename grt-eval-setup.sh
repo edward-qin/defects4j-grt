@@ -2,8 +2,8 @@
 
 ################################################################################
 #
-# This script sets up grt-eval.sh. It addresses java versioning and perl
-# libraries.
+# This script sets up grt-eval.sh. It installs Java 8 and Java 11 in ~/java/,
+# and it installs Perl libraries.
 #
 ################################################################################
 
