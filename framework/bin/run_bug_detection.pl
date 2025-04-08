@@ -65,6 +65,11 @@ test suites for the given project id are analyzed.
 The temporary root directory to be used to check out program versions (optional).
 The default is F</tmp>.
 
+=item -i F<test_generation_timeout>
+
+The timeout used to generate the tests. This is purely an informational argument
+that is plumbed to this function to get written to the database.
+
 =item -D
 
 Debug: Enable verbose logging and do not delete the temporary check-out directory
@@ -122,7 +127,7 @@ use DB;
 # Process arguments and issue usage message if necessary.
 #
 my %cmd_opts;
-getopts('p:d:v:t:o:f:D', \%cmd_opts) or pod2usage(1);
+getopts('p:d:v:t:o:f:i:D', \%cmd_opts) or pod2usage(1);
 
 pod2usage(1) unless defined $cmd_opts{p} and defined $cmd_opts{d} and defined $cmd_opts{o};
 
@@ -133,6 +138,7 @@ my $PID = $cmd_opts{p};
 my $SUITE_DIR = abs_path($cmd_opts{d});
 my $VID = $cmd_opts{v} if defined $cmd_opts{v};
 my $INCL = $cmd_opts{f} // "*.java";
+my $TEST_GEN_TIMEOUT = $cmd_opts{i};
 # Enable debugging if flag is set
 $DEBUG = 1 if defined $cmd_opts{D};
 
@@ -255,11 +261,11 @@ foreach my $vid (keys %{$test_suites}) {
             #
             my $failing = _run_tests($vid, $suite_src, $test_id, $test_dir);
             unless (defined $failing) {
-                _insert_row($vid, $suite_src, $test_id, "Broken");
+                _insert_row_with_timeout($vid, $suite_src, $test_id, "Broken");
                 next;
             }
             my $type = $failing > 0 ? "Fail" : "Pass";
-            _insert_row($vid, $suite_src, $test_id, $type, $failing);
+            _insert_row_with_timeout($vid, $suite_src, $test_id, $type, $failing);
 
         }
     }
@@ -385,6 +391,36 @@ sub _insert_row {
          $TEST_ID => $test_id,
          $TEST_CLASS => $type,
          $NUM_TRIGGER => $trigger,
+    };
+
+    # Build row based on data hash
+    my @tmp;
+    foreach (@COLS) {
+        push (@tmp, $dbh_out->quote((defined $data->{$_} ? $data->{$_} : "-")));
+    }
+
+    # Concat values and write to database table
+    my $row = join(",", @tmp);
+
+    $dbh_out->do("INSERT INTO $TAB_BUG_DETECTION VALUES ($row)");
+}
+
+#
+# Insert row in database, with a timeout column corresponding to the test generation timeout
+#
+sub _insert_row_with_timeout {
+    @_ >= 4 or die $ARG_ERROR;
+    my ($vid, $suite, $test_id, $type, $trigger) = @_;
+
+    # Build data hash
+    my $data = {
+         $PROJECT => $PID,
+         $ID => $vid,
+         $TEST_SUITE => $suite,
+         $TEST_ID => $test_id,
+         $TEST_CLASS => $type,
+         $NUM_TRIGGER => $trigger,
+         $TIMEOUT => $TEST_GEN_TIMEOUT
     };
 
     # Build row based on data hash
